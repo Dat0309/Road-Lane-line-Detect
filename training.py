@@ -5,7 +5,6 @@ import cv2 as cv
 import os
 import matplotlib.image as mpimg
 from numpy.core.fromnumeric import mean
-from moviepy.editor import VideoFileClip
 import math
 
 # áp dụng frame masking vào khung hình và bắt đàu tìm kiếm đường kẻ.
@@ -20,14 +19,15 @@ def interested_region(img, vertices):
     # Kết hợp bit của hai mảng tương ứng với hai hình ảnh được sử dụng, kết quả là hình ảnh được hợp nhất bởi 2 hình ảnh
     return cv.bitwise_and(img, np.zeros_like(img))
 
-#convert of pixels to a line in Hough Transform space
+
+# #convert of pixels to a line in Hough Transform space
 def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
     lines = cv.HoughLinesP(img, rho, theta, threshold, np.array([]), minLineLength=min_line_len, maxLineGap=max_line_gap)
     line_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
     lines_draw(line_img, lines)
     return line_img
 
-#create two lines in each frame after Hought transform
+# #create two lines in each frame after Hought transform
 def lines_draw(img, lines, color = [255,0,0], thickness=6):
     global cache
     global first_frame
@@ -90,7 +90,7 @@ def lines_draw(img, lines, color = [255,0,0], thickness=6):
 
     cache = next_frame
 
-#process each frame of video to detect lane
+# #process each frame of video to detect lane
 def weihted_img(img, initial_img, a = 0.8, b = 1., c = 0.):
     return cv.addWeighted(initial_img, a, img, b, c)
 
@@ -125,8 +125,13 @@ def process_image(image):
     result = weihted_img(line_image, image, a=0.8, b=1., c=0.)
     return result
 
-first_frame = 1
-white_output = '__path_to_output_file__'
-clip1 = VideoFileClip("__path_to_input_file__")
-white_clip = clip1.fl_image(process_image)
-white_clip.write_videofile(white_output, audio = False)
+cap = cv.VideoCapture('test2.mp4')
+while (cap.isOpened()):
+    ret, frame = cap.read()
+
+    cv.imshow("video", frame)
+    if cv.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv.destroyAllWindows()
